@@ -416,15 +416,18 @@ function updateNotifUI() {
 }
 
 async function enableOrTestNotifications() {
+ async function enableOrTestNotifications() {
   if (!('Notification' in window)) {
     alert('Il tuo browser non supporta le notifiche. Su iPhone: installa l\'app in Home (Condividi → Aggiungi a Home) e riaprila da lì.');
     return;
   }
 
   if (Notification.permission === 'granted') {
+    // Già attive → manda test + assicura subscription
     const reg = swRegistration || await registerServiceWorker();
     if (reg?.active) {
       reg.active.postMessage({ type: 'TEST_NOTIFICATION' });
+      await subscribeToPush(reg); // assicura che la subscription sia salvata
     } else {
       alert('Service Worker non pronto. Ricarica la pagina.');
     }
@@ -436,15 +439,67 @@ async function enableOrTestNotifications() {
     return;
   }
 
+  // Chiede il permesso
   const permission = await Notification.requestPermission();
   updateNotifUI();
   if (permission === 'granted') {
     const reg = swRegistration || await registerServiceWorker();
+    await subscribeToPush(reg);
     setTimeout(() => {
       if (reg?.active) reg.active.postMessage({ type: 'TEST_NOTIFICATION' });
     }, 500);
   }
 }
+
+async function subscribeToPush(reg) {
+  try {
+    // Prendi la VAPID public key dal server
+    const vapidRes = await apiGet({ action: 'getVapidKey' });
+    if (!vapidRes.key) {
+      console.error('VAPID key non trovata');
+      return;
+    }
+
+    // Converti la VAPID key da base64url a Uint8Array
+    const applicationServerKey = urlBase64ToUint8Array(vapidRes.key);
+
+    // Iscriviti al servizio push del browser
+    const subscription = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: applicationServerKey
+    });
+
+    console.log('Push subscription ottenuta:', subscription);
+
+    // Estrai i dati dalla subscription
+    const subJson = subscription.toJSON();
+
+    // Manda la subscription al Google Sheet
+    const res = await apiPost({
+      action: 'subscribe',
+      user_id: currentUser.id,
+      endpoint: subJson.endpoint,
+      p256dh: subJson.keys.p256dh,
+      auth: subJson.keys.auth
+    });
+
+    console.log('Subscription salvata:', res);
+  } catch (err) {
+    console.error('Errore subscription push:', err);
+  }
+}
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
 
 ['btn-enable-notif', 'btn-enable-notif-2'].forEach(id => {
   const el = document.getElementById(id);
