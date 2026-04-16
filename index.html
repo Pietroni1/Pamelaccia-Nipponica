@@ -74,7 +74,6 @@
     }
     .btn:active { transform: scale(0.98); }
     .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-secondary { background: var(--card); border: 1px solid var(--red-dark); }
     .error { color: #fca5a5; text-align: center; margin-top: 1rem; min-height: 1.2rem; }
     .user-greeting { text-align: center; margin: 2rem 0; }
     .user-greeting .emoji { font-size: 4rem; display: block; margin-bottom: 0.5rem; }
@@ -111,30 +110,31 @@
     .candidate.selected { border-color: var(--red); background: rgba(185, 28, 28, 0.2); }
     .waiting-icon { font-size: 5rem; text-align: center; margin: 3rem 0 1rem; }
     .waiting-text { text-align: center; font-size: 1.1rem; line-height: 1.5; color: var(--muted); padding: 0 1rem; }
-    .logout { text-align: center; margin-top: auto; padding-top: 2rem; }
     .notifications-card {
-  background: var(--card);
-  border: 1px solid var(--red-dark);
-  border-radius: 12px;
-  padding: 1rem;
-  margin-top: 1rem;
-  font-size: 0.9rem;
-}
-.notifications-card.active { border-color: #22c55e; }
-.notif-status { color: var(--muted); margin-bottom: 0.5rem; }
-.notif-status.ok { color: #4ade80; }
-.btn-small {
-  width: 100%;
-  padding: 0.7rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  background: var(--red-dark);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-.btn-small:active { transform: scale(0.98); }
+      background: var(--card);
+      border: 1px solid var(--red-dark);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+    .notifications-card.active { border-color: #22c55e; }
+    .notif-status { color: var(--muted); margin-bottom: 0.5rem; }
+    .notif-status.ok { color: #4ade80; }
+    .btn-small {
+      width: 100%;
+      padding: 0.7rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background: var(--red-dark);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .btn-small:active { transform: scale(0.98); }
+    .btn-small:disabled { opacity: 0.4; }
+    .logout { text-align: center; margin-top: auto; padding-top: 2rem; }
     .logout a { color: var(--muted); text-decoration: underline; font-size: 0.9rem; }
     .loader { text-align: center; padding: 3rem; color: var(--muted); }
   </style>
@@ -172,7 +172,6 @@
       <div class="notif-status" id="notif-status">🔕 Notifiche non attive</div>
       <button class="btn-small" id="btn-enable-notif">Attiva notifiche giornaliere</button>
     </div>
-
     <div class="logout"><a href="#" id="btn-logout">Esci</a></div>
   </div>
 
@@ -191,15 +190,12 @@
         Dormi sereno... o forse no.
       </p>
     </div>
-  <div class="notifications-card" id="notif-card">
-      <div class="notif-status" id="notif-status">🔕 Notifiche non attive</div>
-      <button class="btn-small" id="btn-enable-notif">Attiva notifiche giornaliere</button>
+    <div class="notifications-card" id="notif-card-2">
+      <div class="notif-status" id="notif-status-2">🔕 Notifiche non attive</div>
+      <button class="btn-small" id="btn-enable-notif-2">Attiva notifiche giornaliere</button>
     </div>
-
-    <div class="logout"><a href="#" id="btn-logout">Esci</a></div>
+    <div class="logout"><a href="#" id="btn-logout-2">Esci</a></div>
   </div>
-
-
 
   <!-- LOADER -->
   <div class="screen" id="screen-loading">
@@ -208,7 +204,6 @@
 
 <script>
 // === CONFIG ===
-// ⚠️ INCOLLA QUI IL TUO URL APPS SCRIPT (quello dello Step 1.4)
 const API_URL = 'https://script.google.com/macros/s/AKfycbzqXEmdqYeRGNhmosoz2Z9AoUQGaAklXNPYeBEkvQLghbm8sJQvTzxDYgiYL-FeKXU3/exec';
 
 // === STATO APP ===
@@ -223,7 +218,6 @@ async function apiGet(params) {
   return res.json();
 }
 async function apiPost(body) {
-  // Apps Script richiede text/plain per evitare preflight CORS
   const res = await fetch(API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -232,7 +226,6 @@ async function apiPost(body) {
   return res.json();
 }
 
-// === NAVIGAZIONE SCHERMATE ===
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -267,17 +260,18 @@ document.getElementById('btn-login').addEventListener('click', async () => {
   }
 });
 
-// === ENTRATA NELL'APP (dopo login o al reload) ===
+// === ENTRATA NELL'APP ===
 async function enterApp() {
   showScreen('screen-loading');
   try {
-    const [dayRes, votedRes, usersRes] = await Promise.all([
-      apiGet({ action: 'getDay' }),
-      apiGet({ action: 'hasVoted', voter_id: currentUser.id, day: await getDay() }),
+    const dayRes = await apiGet({ action: 'getDay' });
+    currentDay = dayRes.day;
+
+    const [votedRes, usersRes] = await Promise.all([
+      apiGet({ action: 'hasVoted', voter_id: currentUser.id, day: currentDay }),
       apiGet({ action: 'getUsers' })
     ]);
 
-    currentDay = dayRes.day;
     document.getElementById('day-number').textContent = currentDay;
     document.getElementById('user-name').textContent = currentUser.nome;
     document.getElementById('user-emoji').textContent = currentUser.emoji;
@@ -289,17 +283,11 @@ async function enterApp() {
       renderCandidates(usersRes);
       showScreen('screen-home');
     }
+    updateNotifUI();
   } catch (err) {
     alert('Errore di connessione: ' + err.message);
     showScreen('screen-login');
   }
-}
-
-async function getDay() {
-  if (currentDay) return currentDay;
-  const r = await apiGet({ action: 'getDay' });
-  currentDay = r.day;
-  return currentDay;
 }
 
 // === RENDER CANDIDATI ===
@@ -307,7 +295,7 @@ function renderCandidates(users) {
   const grid = document.getElementById('candidates-grid');
   grid.innerHTML = '';
   users
-    .filter(u => u.id !== currentUser.id) // non puoi votare te stesso
+    .filter(u => u.id !== currentUser.id)
     .forEach(u => {
       const el = document.createElement('div');
       el.className = 'candidate';
@@ -348,6 +336,7 @@ document.getElementById('btn-vote').addEventListener('click', async () => {
       return;
     }
     showScreen('screen-waiting');
+    updateNotifUI();
   } catch (err) {
     errorEl.textContent = 'Errore di connessione';
     btn.disabled = false;
@@ -368,7 +357,7 @@ function logout(e) {
 document.getElementById('btn-logout').addEventListener('click', logout);
 document.getElementById('btn-logout-2').addEventListener('click', logout);
 
-// === AUTO-LOGIN AL CARICAMENTO ===
+// === AUTO-LOGIN ===
 (async () => {
   const saved = localStorage.getItem('pamelaccia_user');
   if (saved) {
@@ -376,7 +365,8 @@ document.getElementById('btn-logout-2').addEventListener('click', logout);
     await enterApp();
   }
 })();
-  // === SERVICE WORKER & NOTIFICHE ===
+
+// === SERVICE WORKER & NOTIFICHE ===
 let swRegistration = null;
 
 async function registerServiceWorker() {
@@ -402,7 +392,7 @@ function updateNotifUI() {
   const btnEls = [document.getElementById('btn-enable-notif'), document.getElementById('btn-enable-notif-2')];
 
   let statusText = '🔕 Notifiche non attive';
-  let statusClass = '';
+  let statusClass = 'notif-status';
   let cardClass = 'notifications-card';
   let btnText = 'Attiva notifiche giornaliere';
   let btnDisabled = false;
@@ -413,26 +403,25 @@ function updateNotifUI() {
     cardClass = 'notifications-card active';
     btnText = 'Invia notifica di test';
   } else if (permission === 'denied') {
-    statusText = '🚫 Notifiche bloccate. Abilitale dalle impostazioni del browser.';
+    statusText = '🚫 Notifiche bloccate. Abilitale dalle impostazioni.';
     btnDisabled = true;
   } else if (permission === 'unsupported') {
     statusText = '⚠️ Browser non supporta notifiche';
     btnDisabled = true;
   }
 
-  statusEls.forEach(el => { if (el) { el.textContent = statusText; el.className = statusClass || 'notif-status'; }});
+  statusEls.forEach(el => { if (el) { el.textContent = statusText; el.className = statusClass; }});
   cardEls.forEach(el => { if (el) el.className = cardClass; });
   btnEls.forEach(el => { if (el) { el.textContent = btnText; el.disabled = btnDisabled; }});
 }
 
 async function enableOrTestNotifications() {
   if (!('Notification' in window)) {
-    alert('Il tuo browser non supporta le notifiche. Su iPhone: installa prima l\'app in Home (condividi → Aggiungi a Home).');
+    alert('Il tuo browser non supporta le notifiche. Su iPhone: installa l\'app in Home (Condividi → Aggiungi a Home) e riaprila da lì.');
     return;
   }
 
   if (Notification.permission === 'granted') {
-    // Già attive → manda test
     const reg = swRegistration || await registerServiceWorker();
     if (reg?.active) {
       reg.active.postMessage({ type: 'TEST_NOTIFICATION' });
@@ -443,15 +432,13 @@ async function enableOrTestNotifications() {
   }
 
   if (Notification.permission === 'denied') {
-    alert('Notifiche bloccate. Vai nelle impostazioni del browser (o del sito) e sbloccale.');
+    alert('Notifiche bloccate. Sbloccale dalle impostazioni del browser.');
     return;
   }
 
-  // Chiede il permesso
   const permission = await Notification.requestPermission();
   updateNotifUI();
   if (permission === 'granted') {
-    // Registra SW e manda test
     const reg = swRegistration || await registerServiceWorker();
     setTimeout(() => {
       if (reg?.active) reg.active.postMessage({ type: 'TEST_NOTIFICATION' });
@@ -459,13 +446,11 @@ async function enableOrTestNotifications() {
   }
 }
 
-// Attacca gli handler ai bottoni
 ['btn-enable-notif', 'btn-enable-notif-2'].forEach(id => {
   const el = document.getElementById(id);
   if (el) el.addEventListener('click', enableOrTestNotifications);
 });
 
-// Registra SW all'avvio e aggiorna UI
 registerServiceWorker().then(updateNotifUI);
 </script>
 
