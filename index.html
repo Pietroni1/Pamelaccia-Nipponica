@@ -415,8 +415,7 @@ function updateNotifUI() {
   btnEls.forEach(el => { if (el) { el.textContent = btnText; el.disabled = btnDisabled; }});
 }
 
-
- async function enableOrTestNotifications() {
+async function enableOrTestNotifications() {
   if (!('Notification' in window)) {
     alert('Il tuo browser non supporta le notifiche. Su iPhone: installa l\'app in Home (Condividi → Aggiungi a Home) e riaprila da lì.');
     return;
@@ -427,7 +426,7 @@ function updateNotifUI() {
     const reg = swRegistration || await registerServiceWorker();
     if (reg?.active) {
       reg.active.postMessage({ type: 'TEST_NOTIFICATION' });
-      await subscribeToPush(reg); // assicura che la subscription sia salvata
+      await subscribeToPush(reg);
     } else {
       alert('Service Worker non pronto. Ricarica la pagina.');
     }
@@ -453,17 +452,14 @@ function updateNotifUI() {
 
 async function subscribeToPush(reg) {
   try {
-    // Prendi la VAPID public key dal server
     const vapidRes = await apiGet({ action: 'getVapidKey' });
     if (!vapidRes.key) {
       console.error('VAPID key non trovata');
       return;
     }
 
-    // Converti la VAPID key da base64url a Uint8Array
     const applicationServerKey = urlBase64ToUint8Array(vapidRes.key);
 
-    // Iscriviti al servizio push del browser
     const subscription = await reg.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: applicationServerKey
@@ -471,10 +467,8 @@ async function subscribeToPush(reg) {
 
     console.log('Push subscription ottenuta:', subscription);
 
-    // Estrai i dati dalla subscription
     const subJson = subscription.toJSON();
 
-    // Manda la subscription al Google Sheet
     const res = await apiPost({
       action: 'subscribe',
       user_id: currentUser.id,
@@ -499,7 +493,6 @@ function urlBase64ToUint8Array(base64String) {
   }
   return outputArray;
 }
-
 
 ['btn-enable-notif', 'btn-enable-notif-2'].forEach(id => {
   const el = document.getElementById(id);
