@@ -1,59 +1,56 @@
-// Service Worker - Pamelaccia Nipponica
-// Gestisce notifiche push e caching base
+// Service Worker - Pamelaccia Nipponica v2
+// Push notifications + offline base
 
-const CACHE_NAME = 'pamelaccia-v1';
+const CACHE_NAME = 'pamelaccia-v2';
 
-// === INSTALL ===
-self.addEventListener('install', (event) => {
-  console.log('[SW] Install');
-  self.skipWaiting(); // attiva subito, non aspettare chiusura tab
+self.addEventListener('install', () => {
+  console.log('[SW] Install v2');
+  self.skipWaiting();
 });
 
-// === ACTIVATE ===
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activate');
+  console.log('[SW] Activate v2');
   event.waitUntil(clients.claim());
 });
 
-// === RICEZIONE PUSH (dal server, fase 3C) ===
+// === RICEZIONE PUSH DAL SERVER ===
 self.addEventListener('push', (event) => {
   console.log('[SW] Push ricevuta');
-  let data = { title: '🏮 Pamelaccia!', body: 'È ora di votare', url: '/' };
+  let data = { title: '🏮 Pamelaccia!', body: 'È ora di votare il peggiore di oggi!', url: './' };
   try {
     if (event.data) data = { ...data, ...event.data.json() };
-  } catch (e) { /* push senza payload */ }
+  } catch (e) { /* push senza payload, usa i default */ }
 
-  const options = {
-    body: data.body,
-    icon: 'https://em-content.zobj.net/source/apple/391/red-paper-lantern_1f3ee.png',
-    badge: 'https://em-content.zobj.net/source/apple/391/red-paper-lantern_1f3ee.png',
-    vibrate: [200, 100, 200],
-    data: { url: data.url },
-    requireInteraction: false
-  };
-
-  event.waitUntil(self.registration.showNotification(data.title, options));
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: 'https://em-content.zobj.net/source/apple/391/red-paper-lantern_1f3ee.png',
+      badge: 'https://em-content.zobj.net/source/apple/391/red-paper-lantern_1f3ee.png',
+      vibrate: [200, 100, 200],
+      data: { url: data.url },
+      requireInteraction: true,
+      tag: 'pamelaccia-daily'  // sovrascrive notifiche precedenti non lette
+    })
+  );
 });
 
-// === CLICK SULLA NOTIFICA ===
+// === CLICK SULLA NOTIFICA → APRI L'APP ===
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const url = event.notification.data?.url || '/';
+  const url = event.notification.data?.url || './';
   event.waitUntil(
-    clients.matchAll({ type: 'window' }).then(windowClients => {
-      // Se l'app è già aperta, portala in primo piano
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
       for (const client of windowClients) {
         if (client.url.includes(self.location.host) && 'focus' in client) {
           return client.focus();
         }
       }
-      // Altrimenti aprila
-      if (clients.openWindow) return clients.openWindow(url);
+      return clients.openWindow(url);
     })
   );
 });
 
-// === MESSAGGIO DALLA PAGINA (per notifiche di test) ===
+// === MESSAGGIO DALLA PAGINA (test locale) ===
 self.addEventListener('message', (event) => {
   if (event.data?.type === 'TEST_NOTIFICATION') {
     self.registration.showNotification('🏮 Test Pamelaccia', {
