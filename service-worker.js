@@ -1,40 +1,50 @@
-// Service Worker - Pamelaccia Nipponica v2
-// Push notifications + offline base
-
-const CACHE_NAME = 'pamelaccia-v2';
+// Service Worker - Pamelaccia Nipponica v3
 
 self.addEventListener('install', () => {
-  console.log('[SW] Install v2');
+  console.log('[SW] Install v3');
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activate v2');
+  console.log('[SW] Activate v3');
   event.waitUntil(clients.claim());
 });
 
-// === RICEZIONE PUSH DAL SERVER ===
+// === RICEZIONE PUSH (dal server) ===
 self.addEventListener('push', (event) => {
-  console.log('[SW] Push ricevuta');
-  let data = { title: '🏮 Pamelaccia!', body: 'È ora di votare il peggiore di oggi!', url: './' };
-  try {
-    if (event.data) data = { ...data, ...event.data.json() };
-  } catch (e) { /* push senza payload, usa i default */ }
+  console.log('[SW] Push ricevuta, dati:', event.data ? 'sì' : 'no');
+  
+  let title = '🏮 Pamelaccia!';
+  let body = 'È ora di votare il peggiore di oggi!';
+  let url = './';
+
+  // Se c'è un payload, prova a leggerlo
+  if (event.data) {
+    try {
+      const data = event.data.json();
+      title = data.title || title;
+      body = data.body || body;
+      url = data.url || url;
+    } catch (e) {
+      // Payload non parsabile, usa i default
+      console.log('[SW] Payload non parsabile, uso default');
+    }
+  }
 
   event.waitUntil(
-    self.registration.showNotification(data.title, {
-      body: data.body,
+    self.registration.showNotification(title, {
+      body: body,
       icon: 'https://em-content.zobj.net/source/apple/391/red-paper-lantern_1f3ee.png',
       badge: 'https://em-content.zobj.net/source/apple/391/red-paper-lantern_1f3ee.png',
       vibrate: [200, 100, 200],
-      data: { url: data.url },
+      data: { url: url },
       requireInteraction: true,
-      tag: 'pamelaccia-daily'  // sovrascrive notifiche precedenti non lette
+      tag: 'pamelaccia-daily'
     })
   );
 });
 
-// === CLICK SULLA NOTIFICA → APRI L'APP ===
+// === CLICK SULLA NOTIFICA ===
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const url = event.notification.data?.url || './';
@@ -50,7 +60,7 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-// === MESSAGGIO DALLA PAGINA (test locale) ===
+// === TEST LOCALE (dal bottone nell'app) ===
 self.addEventListener('message', (event) => {
   if (event.data?.type === 'TEST_NOTIFICATION') {
     self.registration.showNotification('🏮 Test Pamelaccia', {
