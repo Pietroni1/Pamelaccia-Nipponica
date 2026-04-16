@@ -415,7 +415,7 @@ function updateNotifUI() {
   btnEls.forEach(el => { if (el) { el.textContent = btnText; el.disabled = btnDisabled; }});
 }
 
-async function enableOrTestNotifications() {
+
  async function enableOrTestNotifications() {
   if (!('Notification' in window)) {
     alert('Il tuo browser non supporta le notifiche. Su iPhone: installa l\'app in Home (Condividi → Aggiungi a Home) e riaprila da lì.');
