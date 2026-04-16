@@ -2,23 +2,346 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#b91c1c">
   <title>Pamelaccia Nipponica</title>
+  <link rel="manifest" href="manifest.json">
   <style>
-    body {
-      font-family: system-ui, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
-      color: white;
+    :root {
+      --red: #b91c1c;
+      --red-dark: #7f1d1d;
+      --bg: #1a0a0a;
+      --card: #2a1515;
+      --text: #fef2f2;
+      --muted: #b48a8a;
     }
-    h1 { text-align: center; padding: 2rem; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    .screen {
+      min-height: 100vh;
+      display: none;
+      flex-direction: column;
+      padding: 1.5rem;
+    }
+    .screen.active { display: flex; }
+    .logo {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 800;
+      margin: 2rem 0 0.5rem;
+      letter-spacing: -0.5px;
+    }
+    .logo small { font-size: 0.9rem; color: var(--muted); font-weight: 400; display: block; margin-top: 0.25rem; }
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .pin-input {
+      width: 100%;
+      padding: 1rem;
+      font-size: 2rem;
+      text-align: center;
+      letter-spacing: 0.5rem;
+      background: var(--card);
+      color: var(--text);
+      border: 2px solid var(--red-dark);
+      border-radius: 12px;
+      font-weight: 700;
+    }
+    .pin-input:focus { outline: none; border-color: var(--red); }
+    .btn {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+      background: var(--red);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: transform 0.1s, background 0.2s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-secondary { background: var(--card); border: 1px solid var(--red-dark); }
+    .error { color: #fca5a5; text-align: center; margin-top: 1rem; min-height: 1.2rem; }
+    .user-greeting { text-align: center; margin: 2rem 0; }
+    .user-greeting .emoji { font-size: 4rem; display: block; margin-bottom: 0.5rem; }
+    .user-greeting h2 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+    .user-greeting p { color: var(--muted); }
+    .day-badge {
+      display: inline-block;
+      background: var(--red);
+      padding: 0.4rem 1rem;
+      border-radius: 100px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin: 0.5rem auto;
+    }
+    .candidates-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    .candidate {
+      background: var(--card);
+      border: 2px solid transparent;
+      border-radius: 14px;
+      padding: 1rem 0.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, transform 0.1s;
+      color: var(--text);
+    }
+    .candidate:active { transform: scale(0.96); }
+    .candidate .emoji { font-size: 2.2rem; display: block; margin-bottom: 0.5rem; }
+    .candidate .name { font-size: 0.9rem; font-weight: 600; }
+    .candidate.selected { border-color: var(--red); background: rgba(185, 28, 28, 0.2); }
+    .waiting-icon { font-size: 5rem; text-align: center; margin: 3rem 0 1rem; }
+    .waiting-text { text-align: center; font-size: 1.1rem; line-height: 1.5; color: var(--muted); padding: 0 1rem; }
+    .logout { text-align: center; margin-top: auto; padding-top: 2rem; }
+    .logout a { color: var(--muted); text-decoration: underline; font-size: 0.9rem; }
+    .loader { text-align: center; padding: 3rem; color: var(--muted); }
   </style>
 </head>
 <body>
-  <h1>🏮 Pamelaccia Nipponica<br><small>hosting OK</small></h1>
+
+  <!-- SCHERMATA LOGIN -->
+  <div class="screen active" id="screen-login">
+    <div class="logo">🏮 Pamelaccia<small>Nipponica 2026</small></div>
+    <div class="card" style="margin-top: 3rem;">
+      <p style="text-align:center; margin-bottom: 1rem; color: var(--muted);">Inserisci il tuo PIN</p>
+      <input type="tel" maxlength="4" class="pin-input" id="pin-input" placeholder="••••" inputmode="numeric" autocomplete="off">
+      <button class="btn" id="btn-login">Entra</button>
+      <div class="error" id="login-error"></div>
+    </div>
+  </div>
+
+  <!-- SCHERMATA HOME / VOTO -->
+  <div class="screen" id="screen-home">
+    <div class="user-greeting">
+      <span class="emoji" id="user-emoji"></span>
+      <h2>Ciao <span id="user-name"></span></h2>
+      <div class="day-badge">Giorno <span id="day-number"></span> del viaggio</div>
+    </div>
+    <div id="vote-section">
+      <div class="card">
+        <p style="text-align:center; font-weight: 600; margin-bottom: 0.5rem;">Chi ha fatto la Pamelaccia oggi?</p>
+        <p style="text-align:center; color: var(--muted); font-size: 0.85rem;">Voto segreto, reveal l'ultima sera</p>
+        <div class="candidates-grid" id="candidates-grid"></div>
+        <button class="btn" id="btn-vote" disabled>Conferma voto</button>
+        <div class="error" id="vote-error"></div>
+      </div>
+    </div>
+    <div class="logout"><a href="#" id="btn-logout">Esci</a></div>
+  </div>
+
+  <!-- SCHERMATA ATTESA -->
+  <div class="screen" id="screen-waiting">
+    <div class="user-greeting">
+      <span class="emoji" id="waiting-emoji"></span>
+      <h2>Voto registrato</h2>
+    </div>
+    <div class="card">
+      <div class="waiting-icon">🤫</div>
+      <p class="waiting-text">
+        Hai già votato per oggi.<br>
+        I risultati si svelano<br>
+        <strong>l'ultima sera del viaggio</strong>.<br><br>
+        Dormi sereno... o forse no.
+      </p>
+    </div>
+    <div class="logout"><a href="#" id="btn-logout-2">Esci</a></div>
+  </div>
+
+  <!-- LOADER -->
+  <div class="screen" id="screen-loading">
+    <div class="loader">Caricamento...</div>
+  </div>
+
+<script>
+// === CONFIG ===
+// ⚠️ INCOLLA QUI IL TUO URL APPS SCRIPT (quello dello Step 1.4)
+const API_URL = 'https://script.google.com/macros/s/AKfycbzqXEmdqYeRGNhmosoz2Z9AoUQGaAklXNPYeBEkvQLghbm8sJQvTzxDYgiYL-FeKXU3/exec';
+
+// === STATO APP ===
+let currentUser = null;
+let selectedVoteeId = null;
+let currentDay = null;
+
+// === API HELPERS ===
+async function apiGet(params) {
+  const qs = new URLSearchParams(params).toString();
+  const res = await fetch(`${API_URL}?${qs}`);
+  return res.json();
+}
+async function apiPost(body) {
+  // Apps Script richiede text/plain per evitare preflight CORS
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(body)
+  });
+  return res.json();
+}
+
+// === NAVIGAZIONE SCHERMATE ===
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// === LOGIN ===
+document.getElementById('btn-login').addEventListener('click', async () => {
+  const pin = document.getElementById('pin-input').value.trim();
+  const errorEl = document.getElementById('login-error');
+  errorEl.textContent = '';
+
+  if (pin.length !== 4) {
+    errorEl.textContent = 'Il PIN deve avere 4 cifre';
+    return;
+  }
+
+  showScreen('screen-loading');
+  try {
+    const res = await apiGet({ action: 'login', pin });
+    if (!res.ok) {
+      showScreen('screen-login');
+      errorEl.textContent = res.error || 'PIN non valido';
+      return;
+    }
+    currentUser = res.user;
+    localStorage.setItem('pamelaccia_user', JSON.stringify(currentUser));
+    localStorage.setItem('pamelaccia_pin', pin);
+    await enterApp();
+  } catch (err) {
+    showScreen('screen-login');
+    errorEl.textContent = 'Errore di connessione. Riprova.';
+  }
+});
+
+// === ENTRATA NELL'APP (dopo login o al reload) ===
+async function enterApp() {
+  showScreen('screen-loading');
+  try {
+    const [dayRes, votedRes, usersRes] = await Promise.all([
+      apiGet({ action: 'getDay' }),
+      apiGet({ action: 'hasVoted', voter_id: currentUser.id, day: await getDay() }),
+      apiGet({ action: 'getUsers' })
+    ]);
+
+    currentDay = dayRes.day;
+    document.getElementById('day-number').textContent = currentDay;
+    document.getElementById('user-name').textContent = currentUser.nome;
+    document.getElementById('user-emoji').textContent = currentUser.emoji;
+    document.getElementById('waiting-emoji').textContent = currentUser.emoji;
+
+    if (votedRes.voted) {
+      showScreen('screen-waiting');
+    } else {
+      renderCandidates(usersRes);
+      showScreen('screen-home');
+    }
+  } catch (err) {
+    alert('Errore di connessione: ' + err.message);
+    showScreen('screen-login');
+  }
+}
+
+async function getDay() {
+  if (currentDay) return currentDay;
+  const r = await apiGet({ action: 'getDay' });
+  currentDay = r.day;
+  return currentDay;
+}
+
+// === RENDER CANDIDATI ===
+function renderCandidates(users) {
+  const grid = document.getElementById('candidates-grid');
+  grid.innerHTML = '';
+  users
+    .filter(u => u.id !== currentUser.id) // non puoi votare te stesso
+    .forEach(u => {
+      const el = document.createElement('div');
+      el.className = 'candidate';
+      el.dataset.id = u.id;
+      el.innerHTML = `<span class="emoji">${u.emoji}</span><span class="name">${u.nome}</span>`;
+      el.addEventListener('click', () => {
+        document.querySelectorAll('.candidate').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        selectedVoteeId = u.id;
+        document.getElementById('btn-vote').disabled = false;
+      });
+      grid.appendChild(el);
+    });
+}
+
+// === VOTO ===
+document.getElementById('btn-vote').addEventListener('click', async () => {
+  const errorEl = document.getElementById('vote-error');
+  errorEl.textContent = '';
+  if (!selectedVoteeId) return;
+
+  const pin = localStorage.getItem('pamelaccia_pin');
+  const btn = document.getElementById('btn-vote');
+  btn.disabled = true;
+  btn.textContent = 'Invio...';
+
+  try {
+    const res = await apiPost({
+      action: 'vote',
+      voter_id: currentUser.id,
+      votee_id: selectedVoteeId,
+      pin: pin
+    });
+    if (!res.ok) {
+      errorEl.textContent = res.error || 'Errore nel voto';
+      btn.disabled = false;
+      btn.textContent = 'Conferma voto';
+      return;
+    }
+    showScreen('screen-waiting');
+  } catch (err) {
+    errorEl.textContent = 'Errore di connessione';
+    btn.disabled = false;
+    btn.textContent = 'Conferma voto';
+  }
+});
+
+// === LOGOUT ===
+function logout(e) {
+  if (e) e.preventDefault();
+  localStorage.removeItem('pamelaccia_user');
+  localStorage.removeItem('pamelaccia_pin');
+  currentUser = null;
+  selectedVoteeId = null;
+  document.getElementById('pin-input').value = '';
+  showScreen('screen-login');
+}
+document.getElementById('btn-logout').addEventListener('click', logout);
+document.getElementById('btn-logout-2').addEventListener('click', logout);
+
+// === AUTO-LOGIN AL CARICAMENTO ===
+(async () => {
+  const saved = localStorage.getItem('pamelaccia_user');
+  if (saved) {
+    currentUser = JSON.parse(saved);
+    await enterApp();
+  }
+})();
+</script>
+
 </body>
 </html>
