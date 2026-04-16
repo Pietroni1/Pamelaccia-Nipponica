@@ -112,6 +112,29 @@
     .waiting-icon { font-size: 5rem; text-align: center; margin: 3rem 0 1rem; }
     .waiting-text { text-align: center; font-size: 1.1rem; line-height: 1.5; color: var(--muted); padding: 0 1rem; }
     .logout { text-align: center; margin-top: auto; padding-top: 2rem; }
+    .notifications-card {
+  background: var(--card);
+  border: 1px solid var(--red-dark);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+.notifications-card.active { border-color: #22c55e; }
+.notif-status { color: var(--muted); margin-bottom: 0.5rem; }
+.notif-status.ok { color: #4ade80; }
+.btn-small {
+  width: 100%;
+  padding: 0.7rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: var(--red-dark);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.btn-small:active { transform: scale(0.98); }
     .logout a { color: var(--muted); text-decoration: underline; font-size: 0.9rem; }
     .loader { text-align: center; padding: 3rem; color: var(--muted); }
   </style>
@@ -145,6 +168,11 @@
         <div class="error" id="vote-error"></div>
       </div>
     </div>
+    <div class="notifications-card" id="notif-card">
+      <div class="notif-status" id="notif-status">🔕 Notifiche non attive</div>
+      <button class="btn-small" id="btn-enable-notif">Attiva notifiche giornaliere</button>
+    </div>
+
     <div class="logout"><a href="#" id="btn-logout">Esci</a></div>
   </div>
 
@@ -163,8 +191,15 @@
         Dormi sereno... o forse no.
       </p>
     </div>
-    <div class="logout"><a href="#" id="btn-logout-2">Esci</a></div>
+  <div class="notifications-card" id="notif-card">
+      <div class="notif-status" id="notif-status">🔕 Notifiche non attive</div>
+      <button class="btn-small" id="btn-enable-notif">Attiva notifiche giornaliere</button>
+    </div>
+
+    <div class="logout"><a href="#" id="btn-logout">Esci</a></div>
   </div>
+
+
 
   <!-- LOADER -->
   <div class="screen" id="screen-loading">
@@ -341,6 +376,97 @@ document.getElementById('btn-logout-2').addEventListener('click', logout);
     await enterApp();
   }
 })();
+  // === SERVICE WORKER & NOTIFICHE ===
+let swRegistration = null;
+
+async function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) {
+    console.log('Service Worker non supportato');
+    return null;
+  }
+  try {
+    const reg = await navigator.serviceWorker.register('service-worker.js');
+    console.log('SW registrato:', reg.scope);
+    swRegistration = reg;
+    return reg;
+  } catch (err) {
+    console.error('SW errore:', err);
+    return null;
+  }
+}
+
+function updateNotifUI() {
+  const permission = ('Notification' in window) ? Notification.permission : 'unsupported';
+  const statusEls = [document.getElementById('notif-status'), document.getElementById('notif-status-2')];
+  const cardEls = [document.getElementById('notif-card'), document.getElementById('notif-card-2')];
+  const btnEls = [document.getElementById('btn-enable-notif'), document.getElementById('btn-enable-notif-2')];
+
+  let statusText = '🔕 Notifiche non attive';
+  let statusClass = '';
+  let cardClass = 'notifications-card';
+  let btnText = 'Attiva notifiche giornaliere';
+  let btnDisabled = false;
+
+  if (permission === 'granted') {
+    statusText = '🔔 Notifiche attive';
+    statusClass = 'notif-status ok';
+    cardClass = 'notifications-card active';
+    btnText = 'Invia notifica di test';
+  } else if (permission === 'denied') {
+    statusText = '🚫 Notifiche bloccate. Abilitale dalle impostazioni del browser.';
+    btnDisabled = true;
+  } else if (permission === 'unsupported') {
+    statusText = '⚠️ Browser non supporta notifiche';
+    btnDisabled = true;
+  }
+
+  statusEls.forEach(el => { if (el) { el.textContent = statusText; el.className = statusClass || 'notif-status'; }});
+  cardEls.forEach(el => { if (el) el.className = cardClass; });
+  btnEls.forEach(el => { if (el) { el.textContent = btnText; el.disabled = btnDisabled; }});
+}
+
+async function enableOrTestNotifications() {
+  if (!('Notification' in window)) {
+    alert('Il tuo browser non supporta le notifiche. Su iPhone: installa prima l\'app in Home (condividi → Aggiungi a Home).');
+    return;
+  }
+
+  if (Notification.permission === 'granted') {
+    // Già attive → manda test
+    const reg = swRegistration || await registerServiceWorker();
+    if (reg?.active) {
+      reg.active.postMessage({ type: 'TEST_NOTIFICATION' });
+    } else {
+      alert('Service Worker non pronto. Ricarica la pagina.');
+    }
+    return;
+  }
+
+  if (Notification.permission === 'denied') {
+    alert('Notifiche bloccate. Vai nelle impostazioni del browser (o del sito) e sbloccale.');
+    return;
+  }
+
+  // Chiede il permesso
+  const permission = await Notification.requestPermission();
+  updateNotifUI();
+  if (permission === 'granted') {
+    // Registra SW e manda test
+    const reg = swRegistration || await registerServiceWorker();
+    setTimeout(() => {
+      if (reg?.active) reg.active.postMessage({ type: 'TEST_NOTIFICATION' });
+    }, 500);
+  }
+}
+
+// Attacca gli handler ai bottoni
+['btn-enable-notif', 'btn-enable-notif-2'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('click', enableOrTestNotifications);
+});
+
+// Registra SW all'avvio e aggiorna UI
+registerServiceWorker().then(updateNotifUI);
 </script>
 
 </body>
