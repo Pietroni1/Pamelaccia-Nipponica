@@ -300,7 +300,7 @@
   <div class="hype-overlay" id="hype-overlay">
     <div class="hype-flash" id="hype-flash"></div>
     <div class="hype-img-container">
-      <img src="img/hype.jpg" alt="PAMELACCIA">
+      <img src="img1.jpg" alt="PAMELACCIA">
       <div class="hype-glitch-lines"></div>
       <div class="hype-text">IL VERDETTO</div>
     </div>
@@ -333,7 +333,7 @@ let currentUser = null, selectedVoteeId = null, currentDay = null;
 async function apiGet(p) { const r = await fetch(`${API_URL}?${new URLSearchParams(p)}`); return r.json(); }
 async function apiPost(b) { const r = await fetch(API_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(b) }); return r.json(); }
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
-function avatarUrl(id) { return `img/${id}.jpg`; }
+function avatarUrl(id) { return 'pam.jpg'; }
 
 // === LOGIN ===
 document.getElementById('btn-login').addEventListener('click', async () => {
@@ -477,7 +477,7 @@ document.getElementById('btn-to-champion').addEventListener('click', () => {
 
 function renderChampion(ranking) {
   const w = ranking[0];
-  document.getElementById('champion-avatar').src = avatarUrl(w.id);
+  document.getElementById('champion-avatar').src = 'imghype.jpg';
   document.getElementById('champion-name').textContent = w.nome;
   document.getElementById('champion-votes').textContent = `${w.total} Pamelacci${w.total===1?'a':'e'} in ${revealData.dailyWinners.length} giorni`;
 
@@ -502,7 +502,7 @@ function startShameCountdown(winner) {
 }
 
 function showShameScreen(winner) {
-  document.getElementById('shame-image').src = avatarUrl(winner.id);
+  document.getElementById('shame-image').src = 'imghype.jpg';
   document.getElementById('shame-name').textContent = winner.nome;
   document.getElementById('shame-sub').textContent = `${winner.total} Pamelacci${winner.total===1?'a':'e'} — Giappone 2026`;
   document.getElementById('shame-screen').classList.add('active');
