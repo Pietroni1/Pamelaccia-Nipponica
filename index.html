@@ -9,44 +9,33 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@700;900&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --red: #b91c1c;
-      --red-dark: #7f1d1d;
-      --red-glow: #ef4444;
-      --bg: #0a0505;
-      --card: #1a0f0f;
-      --card-border: rgba(255,255,255,0.06);
-      --text: #fef2f2;
-      --muted: #b48a8a;
-      --gold: #fbbf24;
-      --silver: #d1d5db;
-      --bronze: #d97706;
+      --red: #b91c1c; --red-dark: #7f1d1d; --red-glow: #ef4444;
+      --bg: #0a0505; --card: #1a0f0f; --card-border: rgba(255,255,255,0.06);
+      --text: #fef2f2; --muted: #b48a8a;
+      --gold: #fbbf24; --silver: #d1d5db; --bronze: #d97706;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     html, body { height: 100%; }
-    body {
-      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      overflow-x: hidden;
-      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-    }
+    body { font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+
+    /* === BASE SCREENS === */
     .screen { min-height: 100vh; display: none; flex-direction: column; padding: 1.5rem; }
     .screen.active { display: flex; }
-    .logo { text-align: center; font-size: 2rem; font-weight: 800; margin: 2rem 0 0.5rem; letter-spacing: -0.5px; }
+    .logo { text-align: center; font-size: 2rem; font-weight: 800; margin: 2rem 0 0.5rem; }
     .logo small { font-size: 0.9rem; color: var(--muted); font-weight: 400; display: block; margin-top: 0.25rem; }
     .card { background: var(--card); border-radius: 16px; padding: 1.5rem; margin: 1rem 0; border: 1px solid var(--card-border); }
     .pin-input { width: 100%; padding: 1rem; font-size: 2rem; text-align: center; letter-spacing: 0.5rem; background: var(--card); color: var(--text); border: 2px solid var(--red-dark); border-radius: 12px; font-weight: 700; }
     .pin-input:focus { outline: none; border-color: var(--red); }
-    .btn { width: 100%; padding: 1rem; font-size: 1.05rem; font-weight: 700; background: var(--red); color: white; border: none; border-radius: 12px; cursor: pointer; margin-top: 1rem; transition: transform 0.1s, background 0.2s; }
+    .btn { width: 100%; padding: 1rem; font-size: 1.05rem; font-weight: 700; background: var(--red); color: white; border: none; border-radius: 12px; cursor: pointer; margin-top: 1rem; }
     .btn:active { transform: scale(0.98); }
-    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn:disabled { opacity: 0.4; }
     .error { color: #fca5a5; text-align: center; margin-top: 1rem; min-height: 1.2rem; }
     .user-greeting { text-align: center; margin: 2rem 0; }
     .user-greeting .emoji { font-size: 4rem; display: block; margin-bottom: 0.5rem; }
     .user-greeting h2 { font-size: 1.5rem; margin-bottom: 0.25rem; }
     .day-badge { display: inline-block; background: var(--red); padding: 0.4rem 1rem; border-radius: 100px; font-weight: 700; font-size: 0.9rem; margin: 0.5rem auto; }
     .candidates-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-top: 1rem; }
-    .candidate { background: var(--card); border: 2px solid transparent; border-radius: 14px; padding: 1rem 0.5rem; text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s, transform 0.1s; color: var(--text); }
+    .candidate { background: var(--card); border: 2px solid transparent; border-radius: 14px; padding: 1rem 0.5rem; text-align: center; cursor: pointer; transition: all 0.15s; color: var(--text); }
     .candidate:active { transform: scale(0.96); }
     .candidate .emoji { font-size: 2.2rem; display: block; margin-bottom: 0.5rem; }
     .candidate .name { font-size: 0.9rem; font-weight: 600; }
@@ -58,90 +47,185 @@
     .notif-status { color: var(--muted); margin-bottom: 0.5rem; }
     .notif-status.ok { color: #4ade80; }
     .btn-small { width: 100%; padding: 0.7rem; font-size: 0.9rem; font-weight: 600; background: var(--red-dark); color: white; border: none; border-radius: 8px; cursor: pointer; }
-    .btn-small:active { transform: scale(0.98); }
     .btn-small:disabled { opacity: 0.4; }
     .logout { text-align: center; margin-top: auto; padding-top: 2rem; }
     .logout a { color: var(--muted); text-decoration: underline; font-size: 0.9rem; }
     .loader { text-align: center; padding: 3rem; color: var(--muted); }
 
+    /* === USER AVATAR (post-voto) === */
+    .user-avatar {
+      width: 120px; height: 120px; border-radius: 50%; object-fit: cover;
+      border: 3px solid var(--red-dark); display: block; margin: 0 auto 0.5rem;
+    }
+
     /* === REVEAL === */
-    .reveal-container { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 1.5rem; position: relative; overflow: hidden; }
+    .reveal-container { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 1.5rem; position: relative; }
     .reveal-container::before { content: ''; position: fixed; top: 50%; left: 50%; width: 600px; height: 600px; transform: translate(-50%, -50%); background: radial-gradient(circle, rgba(185,28,28,0.15) 0%, transparent 70%); pointer-events: none; z-index: 0; }
     .reveal-phase { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 420px; position: relative; z-index: 1; }
     .reveal-phase.active { display: flex; }
-    .reveal-intro-text { font-family: 'Noto Serif JP', serif; font-size: 1.4rem; font-weight: 700; line-height: 1.8; opacity: 0; animation: fadeInSlow 2s ease forwards; color: var(--muted); }
+    .reveal-intro-text { font-family: 'Noto Serif JP', serif; font-size: 1.4rem; font-weight: 700; line-height: 1.8; opacity: 0; animation: fadeIn 2s ease forwards; color: var(--muted); }
     .reveal-intro-text .highlight { color: var(--red-glow); font-size: 1.6rem; }
-    .countdown-number { font-family: 'Noto Serif JP', serif; font-size: 8rem; font-weight: 900; color: var(--red-glow); text-shadow: 0 0 60px rgba(239,68,68,0.5), 0 0 120px rgba(239,68,68,0.2); opacity: 0; transform: scale(2); animation: countdownPop 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .countdown-number { font-family: 'Noto Serif JP', serif; font-size: 8rem; font-weight: 900; color: var(--red-glow); text-shadow: 0 0 60px rgba(239,68,68,0.5); opacity: 0; transform: scale(2); animation: countPop 0.8s cubic-bezier(0.16,1,0.3,1) forwards; }
     .daily-winner-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 1.25rem; margin: 0.5rem 0; width: 100%; opacity: 0; transform: translateY(20px); animation: slideUp 0.5s ease forwards; display: flex; align-items: center; gap: 1rem; }
-    .daily-winner-card .day-label { font-size: 0.75rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; min-width: 60px; }
-    .daily-winner-card .winner-emoji { font-size: 2rem; }
-    .daily-winner-card .winner-name { font-weight: 700; font-size: 1rem; }
+    .daily-winner-card .day-label { font-size: 0.75rem; color: var(--muted); font-weight: 700; text-transform: uppercase; min-width: 60px; }
+    .daily-winner-card .dw-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid var(--red-dark); }
+    .daily-winner-card .winner-name { font-weight: 700; }
     .daily-winner-card .winner-votes { color: var(--muted); font-size: 0.85rem; }
-    .daily-section-title { font-family: 'Noto Serif JP', serif; font-size: 1.1rem; color: var(--muted); margin-bottom: 1rem; opacity: 0; animation: fadeInSlow 1s ease forwards; }
-    .daily-scroll { width: 100%; max-height: 60vh; overflow-y: auto; padding-right: 0.5rem; }
-    .btn-continue { margin-top: 1.5rem; padding: 1rem 2rem; font-size: 1rem; font-weight: 700; background: var(--red); color: white; border: none; border-radius: 12px; cursor: pointer; opacity: 0; animation: fadeInSlow 1s ease 0.5s forwards; }
-    .podium-title { font-family: 'Noto Serif JP', serif; font-size: 1.3rem; color: var(--muted); margin-bottom: 2rem; opacity: 0; animation: fadeInSlow 1s ease forwards; }
+    .daily-section-title { font-family: 'Noto Serif JP', serif; font-size: 1.1rem; color: var(--muted); margin-bottom: 1rem; opacity: 0; animation: fadeIn 1s ease forwards; }
+    .daily-scroll { width: 100%; max-height: 60vh; overflow-y: auto; }
+    .btn-continue { margin-top: 1.5rem; padding: 1rem 2rem; font-size: 1rem; font-weight: 700; background: var(--red); color: white; border: none; border-radius: 12px; cursor: pointer; opacity: 0; animation: fadeIn 1s ease 0.5s forwards; }
+    .podium-title { font-family: 'Noto Serif JP', serif; font-size: 1.3rem; color: var(--muted); margin-bottom: 2rem; opacity: 0; animation: fadeIn 1s ease forwards; }
     .podium-entry { width: 100%; padding: 1.25rem; margin: 0.75rem 0; border-radius: 16px; display: flex; align-items: center; gap: 1rem; opacity: 0; transform: scale(0.8); background: var(--card); border: 2px solid transparent; }
     .podium-entry .medal { font-size: 2.5rem; min-width: 50px; text-align: center; }
-    .podium-entry .p-emoji { font-size: 2.5rem; }
+    .podium-entry .pod-avatar { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid var(--red-dark); }
     .podium-entry .p-info { flex: 1; text-align: left; }
     .podium-entry .p-name { font-weight: 700; font-size: 1.2rem; }
     .podium-entry .p-votes { color: var(--muted); font-size: 0.9rem; }
-    .podium-entry.bronze { border-color: var(--bronze); animation: podiumReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-    .podium-entry.silver { border-color: var(--silver); animation: podiumReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-    .podium-entry.gold { border-color: var(--gold); background: linear-gradient(135deg, var(--card) 0%, rgba(251,191,36,0.1) 100%); animation: podiumReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-    .champion-section { animation: fadeInSlow 1.5s ease forwards; }
+    .podium-entry.bronze { border-color: var(--bronze); animation: podReveal 0.8s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .podium-entry.silver { border-color: var(--silver); animation: podReveal 0.8s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .podium-entry.gold { border-color: var(--gold); background: linear-gradient(135deg, var(--card) 0%, rgba(251,191,36,0.1) 100%); animation: podReveal 0.8s cubic-bezier(0.16,1,0.3,1) forwards; }
+
+    /* === HYPE SCREEN (aggressive animation) === */
+    .hype-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 150;
+      background: #000; display: none; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .hype-overlay.active { display: flex; }
+    .hype-img-container {
+      position: relative; width: 85vw; max-width: 400px;
+      animation: hypeCombo 3s ease-in-out forwards;
+    }
+    .hype-img-container img { width: 100%; border-radius: 8px; display: block; }
+    .hype-flash {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--red-glow); opacity: 0; pointer-events: none; z-index: 151;
+      animation: flashBang 3s ease forwards;
+    }
+    .hype-glitch-lines {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(239,68,68,0.1) 2px, rgba(239,68,68,0.1) 4px);
+      animation: glitchScan 0.15s linear infinite;
+      pointer-events: none; mix-blend-mode: screen;
+    }
+    .hype-text {
+      position: absolute; bottom: -60px; left: 0; right: 0; text-align: center;
+      font-family: 'Noto Serif JP', serif; font-size: 1.8rem; font-weight: 900;
+      color: var(--red-glow); text-shadow: 0 0 30px rgba(239,68,68,0.6);
+      opacity: 0; animation: fadeIn 0.5s ease 1.5s forwards;
+    }
+
+    /* === CHAMPION === */
+    .champion-section { animation: fadeIn 1.5s ease forwards; }
     .champion-crown { font-size: 4rem; margin-bottom: 0.5rem; }
-    .champion-emoji { font-size: 6rem; margin: 1rem 0; }
+    .champion-avatar { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid var(--gold); margin: 1rem auto; display: block; box-shadow: 0 0 40px rgba(251,191,36,0.3); }
     .champion-title { font-family: 'Noto Serif JP', serif; font-size: 1.1rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.5rem; }
     .champion-name { font-family: 'Noto Serif JP', serif; font-size: 2.2rem; font-weight: 900; margin-bottom: 0.25rem; }
     .champion-votes { color: var(--muted); font-size: 1rem; margin-bottom: 2rem; }
-    .champion-label { font-family: 'Noto Serif JP', serif; font-size: 1.5rem; font-weight: 900; color: var(--red-glow); text-shadow: 0 0 30px rgba(239,68,68,0.4); margin-bottom: 2rem; }
-    .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; overflow: hidden; }
-    .confetti { position: absolute; width: 10px; height: 10px; top: -10px; animation: confettiFall linear forwards; }
+    .champion-label { font-family: 'Noto Serif JP', serif; font-size: 1.5rem; font-weight: 900; color: var(--red-glow); text-shadow: 0 0 30px rgba(239,68,68,0.4); margin-bottom: 1rem; }
+    .shame-countdown-text { font-family: 'Noto Serif JP', serif; font-size: 1rem; color: var(--muted); margin-top: 1.5rem; opacity: 0; animation: fadeIn 1s ease 1s forwards; }
+    .shame-countdown-text span { color: var(--red-glow); font-weight: 900; font-size: 1.3rem; }
+
+    /* === SHAME SCREEN === */
+    .shame-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 200; background: #000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+    .shame-screen.active { display: flex; }
+    .shame-screen img { width: 100%; height: 100vh; object-fit: cover; opacity: 0; animation: shameZoom 0.5s ease forwards; }
+    .shame-banner { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.85) 30%); padding: 2rem 1.5rem 2.5rem; text-align: center; opacity: 0; animation: fadeIn 1s ease 0.8s forwards; }
+    .shame-banner-title { font-family: 'Noto Serif JP', serif; font-size: 0.85rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 0.3rem; }
+    .shame-banner-name { font-family: 'Noto Serif JP', serif; font-size: 2rem; font-weight: 900; color: white; margin-bottom: 0.3rem; }
+    .shame-banner-sub { font-size: 0.95rem; color: var(--muted); }
+    .shame-border { position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 4px solid var(--red-glow); pointer-events: none; animation: shamePulse 1.5s ease-in-out infinite; }
+    .shame-close { position: absolute; top: 1.5rem; right: 1.5rem; background: rgba(0,0,0,0.6); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; opacity: 0; animation: fadeIn 1s ease 2s forwards; }
+
+    /* video + ranking */
     .video-section { width: 100%; margin-top: 1.5rem; border-radius: 16px; overflow: hidden; border: 2px solid var(--red-dark); }
     .video-section iframe { width: 100%; aspect-ratio: 16/9; border: none; }
     .full-ranking { width: 100%; margin-top: 1.5rem; }
     .full-ranking-title { font-size: 0.85rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; }
     .rank-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0; border-bottom: 1px solid var(--card-border); }
     .rank-pos { font-weight: 700; color: var(--muted); min-width: 24px; font-size: 0.9rem; }
-    .rank-emoji { font-size: 1.5rem; }
+    .rank-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid var(--red-dark); }
     .rank-name { flex: 1; font-weight: 600; font-size: 0.95rem; }
     .rank-total { font-weight: 700; color: var(--red-glow); font-size: 0.95rem; }
 
-    @keyframes fadeInSlow { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes countdownPop { 0% { opacity: 0; transform: scale(2); } 50% { opacity: 1; } 100% { opacity: 0; transform: scale(0.5); } }
+    .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; overflow: hidden; }
+    .confetti { position: absolute; width: 10px; height: 10px; top: -10px; animation: confettiFall linear forwards; }
+
+    /* === ANIMATIONS === */
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes countPop { 0% { opacity: 0; transform: scale(2); } 50% { opacity: 1; } 100% { opacity: 0; transform: scale(0.5); } }
     @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
-    @keyframes podiumReveal { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+    @keyframes podReveal { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
     @keyframes confettiFall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+    @keyframes shameZoom { 0% { opacity: 0; transform: scale(1.15); } 100% { opacity: 1; transform: scale(1); } }
+    @keyframes shamePulse { 0%,100% { border-color: var(--red-glow); box-shadow: inset 0 0 30px rgba(239,68,68,0.2); } 50% { border-color: var(--red); box-shadow: inset 0 0 60px rgba(239,68,68,0.4); } }
+
+    /* Hype combo: shake + zoom pulse */
+    @keyframes hypeCombo {
+      0% { transform: scale(1) translate(0,0); }
+      5% { transform: scale(1.05) translate(-8px, 5px); }
+      10% { transform: scale(0.98) translate(10px, -5px); }
+      15% { transform: scale(1.08) translate(-5px, 8px); }
+      20% { transform: scale(1) translate(8px, -3px); }
+      25% { transform: scale(1.1) translate(-10px, -5px); }
+      30% { transform: scale(0.95) translate(5px, 10px); }
+      35% { transform: scale(1.12) translate(-8px, -8px); }
+      40% { transform: scale(1) translate(10px, 5px); }
+      45% { transform: scale(1.15) translate(-12px, 3px); }
+      50% { transform: scale(0.92) translate(8px, -10px); }
+      55% { transform: scale(1.18) translate(-5px, 8px); }
+      60% { transform: scale(1) translate(12px, -5px); }
+      65% { transform: scale(1.2) translate(-10px, -8px); }
+      70% { transform: scale(0.9) translate(5px, 12px); }
+      75% { transform: scale(1.25) translate(-15px, 5px); }
+      80% { transform: scale(1) translate(10px, -12px); }
+      85% { transform: scale(1.3) translate(-8px, 8px); }
+      90% { transform: scale(0.85) translate(15px, -5px); }
+      95% { transform: scale(1.35) translate(-5px, -10px); }
+      100% { transform: scale(1.4) translate(0, 0); opacity: 0; }
+    }
+    /* Flash bangs during hype */
+    @keyframes flashBang {
+      0% { opacity: 0; }
+      10% { opacity: 0.6; } 12% { opacity: 0; }
+      30% { opacity: 0; } 32% { opacity: 0.5; } 34% { opacity: 0; }
+      50% { opacity: 0; } 52% { opacity: 0.7; } 54% { opacity: 0; }
+      70% { opacity: 0; } 72% { opacity: 0.4; } 74% { opacity: 0; }
+      85% { opacity: 0; } 87% { opacity: 0.8; } 89% { opacity: 0; }
+      95% { opacity: 0; } 97% { opacity: 1; } 100% { opacity: 0; }
+    }
+    /* VHS scan lines */
+    @keyframes glitchScan {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(4px); }
+    }
   </style>
 </head>
 <body>
 
+  <!-- LOGIN -->
   <div class="screen active" id="screen-login">
     <div class="logo">🏮 Pamelaccia<small>Nipponica 2026</small></div>
     <div class="card" style="margin-top: 3rem;">
-      <p style="text-align:center; margin-bottom: 1rem; color: var(--muted);">Inserisci il tuo PIN</p>
+      <p style="text-align:center; margin-bottom:1rem; color:var(--muted);">Inserisci il tuo PIN</p>
       <input type="tel" maxlength="4" class="pin-input" id="pin-input" placeholder="••••" inputmode="numeric" autocomplete="off">
       <button class="btn" id="btn-login">Entra</button>
       <div class="error" id="login-error"></div>
     </div>
   </div>
 
+  <!-- HOME / VOTO -->
   <div class="screen" id="screen-home">
     <div class="user-greeting">
-      <span class="emoji" id="user-emoji"></span>
+      <img class="user-avatar" id="user-avatar" src="" alt="">
       <h2>Ciao <span id="user-name"></span></h2>
       <div class="day-badge">Giorno <span id="day-number"></span> del viaggio</div>
     </div>
-    <div id="vote-section">
-      <div class="card">
-        <p style="text-align:center; font-weight: 600; margin-bottom: 0.5rem;">Chi ha fatto la Pamelaccia oggi?</p>
-        <p style="text-align:center; color: var(--muted); font-size: 0.85rem;">Voto segreto, reveal l'ultima sera</p>
-        <div class="candidates-grid" id="candidates-grid"></div>
-        <button class="btn" id="btn-vote" disabled>Conferma voto</button>
-        <div class="error" id="vote-error"></div>
-      </div>
+    <div class="card">
+      <p style="text-align:center; font-weight:600; margin-bottom:0.5rem;">Chi ha fatto la Pamelaccia oggi?</p>
+      <p style="text-align:center; color:var(--muted); font-size:0.85rem;">Voto segreto, reveal l'ultima sera</p>
+      <div class="candidates-grid" id="candidates-grid"></div>
+      <button class="btn" id="btn-vote" disabled>Conferma voto</button>
+      <div class="error" id="vote-error"></div>
     </div>
     <div class="notifications-card" id="notif-card">
       <div class="notif-status" id="notif-status">🔕 Notifiche non attive</div>
@@ -150,9 +234,10 @@
     <div class="logout"><a href="#" id="btn-logout">Esci</a></div>
   </div>
 
+  <!-- ATTESA (post-voto) -->
   <div class="screen" id="screen-waiting">
     <div class="user-greeting">
-      <span class="emoji" id="waiting-emoji"></span>
+      <img class="user-avatar" id="waiting-avatar" src="" alt="">
       <h2>Voto registrato</h2>
     </div>
     <div class="card">
@@ -166,32 +251,39 @@
     <div class="logout"><a href="#" id="btn-logout-2">Esci</a></div>
   </div>
 
+  <!-- REVEAL -->
   <div class="screen" id="screen-reveal">
     <div class="reveal-container">
+      <!-- Fase 1: Intro -->
       <div class="reveal-phase active" id="reveal-intro">
-        <div class="reveal-intro-text">12 giorni.<br>12 votazioni.<br><span class="highlight">1 PAMELACCIA.</span><br><br>🏮</div>
+        <div class="reveal-intro-text">10 giorni.<br>10 votazioni.<br><span class="highlight">1 verdetto.</span><br><br>🏮</div>
       </div>
+      <!-- Fase 2: Countdown -->
       <div class="reveal-phase" id="reveal-countdown">
         <div class="countdown-number" id="countdown-num">3</div>
       </div>
+      <!-- Fase 3: Daily Winners -->
       <div class="reveal-phase" id="reveal-daily">
-        <div class="daily-section-title">LE SPAMELACCE SIFILITCHE DI OGNI GIORNO</div>
+        <div class="daily-section-title">I peggiori di ogni sera</div>
         <div class="daily-scroll" id="daily-winners-list"></div>
         <button class="btn-continue" id="btn-to-podium">Scopri il podio finale →</button>
       </div>
+      <!-- Fase 4: Podium -->
       <div class="reveal-phase" id="reveal-podium">
-        <div class="podium-title">Il podio ANGELICO</div>
+        <div class="podium-title">Il podio della vergogna</div>
         <div id="podium-entries"></div>
         <button class="btn-continue" id="btn-to-champion" style="display:none;">Il verdetto finale →</button>
       </div>
+      <!-- Fase 5: Champion -->
       <div class="reveal-phase" id="reveal-champion">
         <div class="champion-section">
           <div class="champion-crown">👑</div>
           <div class="champion-title">Pamelaccia Nipponica 2026</div>
-          <div class="champion-emoji" id="champion-emoji"></div>
+          <img class="champion-avatar" id="champion-avatar" src="" alt="">
           <div class="champion-name" id="champion-name"></div>
           <div class="champion-votes" id="champion-votes"></div>
           <div class="champion-label">🏮 LA PAMELACCIA 🏮</div>
+          <div class="shame-countdown-text" id="shame-countdown">La vergogna finale tra <span id="shame-timer">10</span>...</div>
           <div class="video-section" id="video-section" style="display:none;">
             <iframe id="video-iframe" allowfullscreen allow="autoplay"></iframe>
           </div>
@@ -204,6 +296,28 @@
     </div>
   </div>
 
+  <!-- HYPE OVERLAY (pre-champion, aggressive animation) -->
+  <div class="hype-overlay" id="hype-overlay">
+    <div class="hype-flash" id="hype-flash"></div>
+    <div class="hype-img-container">
+      <img src="img/hype.jpg" alt="PAMELACCIA">
+      <div class="hype-glitch-lines"></div>
+      <div class="hype-text">IL VERDETTO</div>
+    </div>
+  </div>
+
+  <!-- SHAME SCREEN -->
+  <div class="shame-screen" id="shame-screen">
+    <div class="shame-border"></div>
+    <button class="shame-close" id="shame-close">✕</button>
+    <img id="shame-image" src="" alt="La Pamelaccia">
+    <div class="shame-banner">
+      <div class="shame-banner-title">🏮 Pamelaccia Nipponica 2026 🏮</div>
+      <div class="shame-banner-name" id="shame-name"></div>
+      <div class="shame-banner-sub" id="shame-sub"></div>
+    </div>
+  </div>
+
   <div class="confetti-container" id="confetti-container"></div>
 
   <div class="screen" id="screen-loading">
@@ -212,308 +326,227 @@
 
 <script>
 const API_URL = 'https://script.google.com/macros/s/AKfycbzqXEmdqYeRGNhmosoz2Z9AoUQGaAklXNPYeBEkvQLghbm8sJQvTzxDYgiYL-FeKXU3/exec';
-
-// ⬇️ INCOLLA QUI L'URL EMBED DEL VIDEO YOUTUBE QUANDO LO AVRAI
-// Formato: https://www.youtube.com/embed/VIDEO_ID
 const VIDEO_URL = '';
 
-let currentUser = null;
-let selectedVoteeId = null;
-let currentDay = null;
+let currentUser = null, selectedVoteeId = null, currentDay = null;
 
-async function apiGet(params) {
-  const qs = new URLSearchParams(params).toString();
-  const res = await fetch(`${API_URL}?${qs}`);
-  return res.json();
-}
-async function apiPost(body) {
-  const res = await fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify(body)
-  });
-  return res.json();
-}
-
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
+async function apiGet(p) { const r = await fetch(`${API_URL}?${new URLSearchParams(p)}`); return r.json(); }
+async function apiPost(b) { const r = await fetch(API_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(b) }); return r.json(); }
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function avatarUrl(id) { return `img/${id}.jpg`; }
 
 // === LOGIN ===
 document.getElementById('btn-login').addEventListener('click', async () => {
   const pin = document.getElementById('pin-input').value.trim();
-  const errorEl = document.getElementById('login-error');
-  errorEl.textContent = '';
-  if (pin.length !== 4) { errorEl.textContent = 'Il PIN deve avere 4 cifre'; return; }
-
+  const err = document.getElementById('login-error'); err.textContent = '';
+  if (pin.length !== 4) { err.textContent = 'Il PIN deve avere 4 cifre'; return; }
   showScreen('screen-loading');
   try {
-    const res = await apiGet({ action: 'login', pin });
-    if (!res.ok) { showScreen('screen-login'); errorEl.textContent = res.error || 'PIN non valido'; return; }
+    const res = await apiGet({ action:'login', pin });
+    if (!res.ok) { showScreen('screen-login'); err.textContent = res.error || 'PIN non valido'; return; }
     currentUser = res.user;
     localStorage.setItem('pamelaccia_user', JSON.stringify(currentUser));
     localStorage.setItem('pamelaccia_pin', pin);
     await enterApp();
-  } catch (err) { showScreen('screen-login'); errorEl.textContent = 'Errore di connessione. Riprova.'; }
+  } catch(e) { showScreen('screen-login'); err.textContent = 'Errore di connessione.'; }
 });
 
-// === ENTRATA NELL'APP ===
+// === ENTER APP ===
 async function enterApp() {
   showScreen('screen-loading');
   try {
-    const dayRes = await apiGet({ action: 'getDay' });
-    currentDay = dayRes.day;
-
+    const dayRes = await apiGet({ action:'getDay' }); currentDay = dayRes.day;
     const pin = localStorage.getItem('pamelaccia_pin');
-    const resultsRes = await apiGet({ action: 'getResults', pin: pin });
+    const rr = await apiGet({ action:'getResults', pin });
+    if (rr.ok) { startReveal(rr); return; }
 
-    if (resultsRes.ok) {
-      startReveal(resultsRes);
-      return;
-    }
-
-    const [votedRes, usersRes] = await Promise.all([
-      apiGet({ action: 'hasVoted', voter_id: currentUser.id, day: currentDay }),
-      apiGet({ action: 'getUsers' })
+    const [vr, ur] = await Promise.all([
+      apiGet({ action:'hasVoted', voter_id: currentUser.id, day: currentDay }),
+      apiGet({ action:'getUsers' })
     ]);
-
     document.getElementById('day-number').textContent = currentDay;
     document.getElementById('user-name').textContent = currentUser.nome;
-    document.getElementById('user-emoji').textContent = currentUser.emoji;
-    document.getElementById('waiting-emoji').textContent = currentUser.emoji;
+    document.getElementById('user-avatar').src = avatarUrl(currentUser.id);
+    document.getElementById('waiting-avatar').src = avatarUrl(currentUser.id);
 
-    if (votedRes.voted) { showScreen('screen-waiting'); }
-    else { renderCandidates(usersRes); showScreen('screen-home'); }
+    if (vr.voted) { showScreen('screen-waiting'); }
+    else { renderCandidates(ur); showScreen('screen-home'); }
     updateNotifUI();
-  } catch (err) { alert('Errore di connessione: ' + err.message); showScreen('screen-login'); }
+  } catch(e) { alert('Errore: ' + e.message); showScreen('screen-login'); }
 }
 
 function renderCandidates(users) {
-  const grid = document.getElementById('candidates-grid');
-  grid.innerHTML = '';
+  const g = document.getElementById('candidates-grid'); g.innerHTML = '';
   users.filter(u => u.id !== currentUser.id).forEach(u => {
-    const el = document.createElement('div');
-    el.className = 'candidate';
+    const el = document.createElement('div'); el.className = 'candidate';
     el.innerHTML = `<span class="emoji">${u.emoji}</span><span class="name">${u.nome}</span>`;
     el.addEventListener('click', () => {
       document.querySelectorAll('.candidate').forEach(c => c.classList.remove('selected'));
-      el.classList.add('selected');
-      selectedVoteeId = u.id;
+      el.classList.add('selected'); selectedVoteeId = u.id;
       document.getElementById('btn-vote').disabled = false;
     });
-    grid.appendChild(el);
+    g.appendChild(el);
   });
 }
 
 document.getElementById('btn-vote').addEventListener('click', async () => {
-  const errorEl = document.getElementById('vote-error');
-  errorEl.textContent = '';
+  const err = document.getElementById('vote-error'); err.textContent = '';
   if (!selectedVoteeId) return;
   const pin = localStorage.getItem('pamelaccia_pin');
-  const btn = document.getElementById('btn-vote');
-  btn.disabled = true; btn.textContent = 'Invio...';
+  const btn = document.getElementById('btn-vote'); btn.disabled = true; btn.textContent = 'Invio...';
   try {
-    const res = await apiPost({ action: 'vote', voter_id: currentUser.id, votee_id: selectedVoteeId, pin: pin });
-    if (!res.ok) { errorEl.textContent = res.error || 'Errore nel voto'; btn.disabled = false; btn.textContent = 'Conferma voto'; return; }
+    const res = await apiPost({ action:'vote', voter_id: currentUser.id, votee_id: selectedVoteeId, pin });
+    if (!res.ok) { err.textContent = res.error; btn.disabled = false; btn.textContent = 'Conferma voto'; return; }
     showScreen('screen-waiting'); updateNotifUI();
-  } catch (err) { errorEl.textContent = 'Errore di connessione'; btn.disabled = false; btn.textContent = 'Conferma voto'; }
+  } catch(e) { err.textContent = 'Errore di connessione'; btn.disabled = false; btn.textContent = 'Conferma voto'; }
 });
 
-function logout(e) {
-  if (e) e.preventDefault();
-  localStorage.removeItem('pamelaccia_user');
-  localStorage.removeItem('pamelaccia_pin');
-  currentUser = null; selectedVoteeId = null;
-  document.getElementById('pin-input').value = '';
-  showScreen('screen-login');
-}
+function logout(e) { if(e) e.preventDefault(); localStorage.removeItem('pamelaccia_user'); localStorage.removeItem('pamelaccia_pin'); currentUser=null; selectedVoteeId=null; document.getElementById('pin-input').value=''; showScreen('screen-login'); }
 document.getElementById('btn-logout').addEventListener('click', logout);
 document.getElementById('btn-logout-2').addEventListener('click', logout);
-
-(async () => {
-  const saved = localStorage.getItem('pamelaccia_user');
-  if (saved) { currentUser = JSON.parse(saved); await enterApp(); }
-})();
+(async () => { const s = localStorage.getItem('pamelaccia_user'); if(s) { currentUser = JSON.parse(s); await enterApp(); } })();
 
 // ========================================
-// === REVEAL FINALE ===
+// REVEAL
 // ========================================
-
-let revealData = null;
-const userMap = {};
+let revealData = null; const userMap = {};
 
 function startReveal(data) {
   revealData = data;
   data.ranking.forEach(u => { userMap[u.id] = u; });
   showScreen('screen-reveal');
   showRevealPhase('reveal-intro');
-  setTimeout(() => {
-    showRevealPhase('reveal-countdown');
-    runCountdown(() => {
-      showRevealPhase('reveal-daily');
-      renderDailyWinners(data.dailyWinners);
-    });
-  }, 3500);
+  setTimeout(() => { showRevealPhase('reveal-countdown'); runCountdown(() => { showRevealPhase('reveal-daily'); renderDailyWinners(data.dailyWinners); }); }, 3500);
 }
 
-function showRevealPhase(id) {
-  document.querySelectorAll('.reveal-phase').forEach(p => p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
+function showRevealPhase(id) { document.querySelectorAll('.reveal-phase').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 
-function runCountdown(callback) {
-  const numEl = document.getElementById('countdown-num');
-  let count = 3;
-  function showNum() {
-    numEl.textContent = count;
-    numEl.style.animation = 'none';
-    void numEl.offsetHeight;
-    numEl.style.animation = 'countdownPop 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards';
-    if (navigator.vibrate) navigator.vibrate(100);
-    count--;
-    if (count > 0) { setTimeout(showNum, 1000); }
-    else if (count === 0) {
-      setTimeout(() => {
-        numEl.textContent = '🏮';
-        numEl.style.animation = 'none';
-        void numEl.offsetHeight;
-        numEl.style.animation = 'countdownPop 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards';
-        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-        setTimeout(callback, 1000);
-      }, 1000);
-    }
+function runCountdown(cb) {
+  const el = document.getElementById('countdown-num'); let c = 3;
+  function go() {
+    el.textContent = c; el.style.animation = 'none'; void el.offsetHeight;
+    el.style.animation = 'countPop 0.8s cubic-bezier(0.16,1,0.3,1) forwards';
+    if (navigator.vibrate) navigator.vibrate(100); c--;
+    if (c > 0) setTimeout(go, 1000);
+    else if (c === 0) setTimeout(() => { el.textContent = '🏮'; el.style.animation = 'none'; void el.offsetHeight; el.style.animation = 'countPop 0.8s cubic-bezier(0.16,1,0.3,1) forwards'; if (navigator.vibrate) navigator.vibrate([100,50,100]); setTimeout(cb, 1000); }, 1000);
   }
-  showNum();
+  go();
 }
 
-function renderDailyWinners(dailyWinners) {
-  const list = document.getElementById('daily-winners-list');
-  list.innerHTML = '';
-  dailyWinners.forEach((dw, index) => {
-    const winner = userMap[dw.winners[0]] || { nome: '?', emoji: '❓' };
-    const card = document.createElement('div');
-    card.className = 'daily-winner-card';
-    card.style.animationDelay = `${index * 0.3}s`;
-    card.innerHTML = `
-      <div class="day-label">Giorno ${dw.day}</div>
-      <div class="winner-emoji">${winner.emoji}</div>
-      <div><div class="winner-name">${winner.nome}</div><div class="winner-votes">${dw.votes} vot${dw.votes === 1 ? 'o' : 'i'}</div></div>
-    `;
+function renderDailyWinners(dw) {
+  const list = document.getElementById('daily-winners-list'); list.innerHTML = '';
+  dw.forEach((d, i) => {
+    const w = userMap[d.winners[0]] || { nome:'?', emoji:'❓', id:0 };
+    const card = document.createElement('div'); card.className = 'daily-winner-card';
+    card.style.animationDelay = `${i * 0.3}s`;
+    card.innerHTML = `<div class="day-label">Giorno ${d.day}</div><img class="dw-avatar" src="${avatarUrl(w.id)}" alt="${w.nome}"><div><div class="winner-name">${w.nome}</div><div class="winner-votes">${d.votes} vot${d.votes===1?'o':'i'}</div></div>`;
     list.appendChild(card);
   });
 }
 
-document.getElementById('btn-to-podium').addEventListener('click', () => {
-  showRevealPhase('reveal-podium');
-  renderPodium(revealData.ranking);
-});
+document.getElementById('btn-to-podium').addEventListener('click', () => { showRevealPhase('reveal-podium'); renderPodium(revealData.ranking); });
 
 function renderPodium(ranking) {
-  const container = document.getElementById('podium-entries');
-  container.innerHTML = '';
-  const medals = ['🥉', '🥈', '🥇'];
-  const classes = ['bronze', 'silver', 'gold'];
+  const c = document.getElementById('podium-entries'); c.innerHTML = '';
+  const medals = ['🥉','🥈','🥇'], cls = ['bronze','silver','gold'];
   const top3 = ranking.slice(0, Math.min(3, ranking.length)).reverse();
-  top3.forEach((user, index) => {
-    const entry = document.createElement('div');
-    entry.className = `podium-entry ${classes[index]}`;
-    entry.style.animationDelay = `${index * 1.5}s`;
-    entry.innerHTML = `
-      <div class="medal">${medals[index]}</div>
-      <div class="p-emoji">${user.emoji}</div>
-      <div class="p-info"><div class="p-name">${user.nome}</div><div class="p-votes">${user.total} Pamelacci${user.total === 1 ? 'a' : 'e'}</div></div>
-    `;
-    container.appendChild(entry);
+  top3.forEach((u, i) => {
+    const e = document.createElement('div'); e.className = `podium-entry ${cls[i]}`; e.style.animationDelay = `${i*1.5}s`;
+    e.innerHTML = `<div class="medal">${medals[i]}</div><img class="pod-avatar" src="${avatarUrl(u.id)}" alt="${u.nome}"><div class="p-info"><div class="p-name">${u.nome}</div><div class="p-votes">${u.total} Pamelacci${u.total===1?'a':'e'}</div></div>`;
+    c.appendChild(e);
   });
-  setTimeout(() => {
-    const btn = document.getElementById('btn-to-champion');
-    btn.style.display = 'block';
-    btn.style.animation = 'fadeInSlow 1s ease forwards';
-  }, top3.length * 1500 + 500);
+  setTimeout(() => { const b = document.getElementById('btn-to-champion'); b.style.display = 'block'; b.style.animation = 'fadeIn 1s ease forwards'; }, top3.length * 1500 + 500);
 }
 
+// "Il verdetto finale" → HYPE → champion
 document.getElementById('btn-to-champion').addEventListener('click', () => {
-  showRevealPhase('reveal-champion');
-  renderChampion(revealData.ranking);
-  launchConfetti();
+  // Show hype overlay with aggressive animation
+  const hype = document.getElementById('hype-overlay');
+  hype.classList.add('active');
+  if (navigator.vibrate) navigator.vibrate([100,50,100,50,100,50,200,100,300]);
+
+  // After 3.5s hype ends → show champion
+  setTimeout(() => {
+    hype.classList.remove('active');
+    showRevealPhase('reveal-champion');
+    renderChampion(revealData.ranking);
+    launchConfetti();
+    startShameCountdown(revealData.ranking[0]);
+  }, 3500);
 });
 
 function renderChampion(ranking) {
-  const winner = ranking[0];
-  document.getElementById('champion-emoji').textContent = winner.emoji;
-  document.getElementById('champion-name').textContent = winner.nome;
-  document.getElementById('champion-votes').textContent = `${winner.total} Pamelacci${winner.total === 1 ? 'a' : 'e'} in ${revealData.dailyWinners.length} giorni`;
+  const w = ranking[0];
+  document.getElementById('champion-avatar').src = avatarUrl(w.id);
+  document.getElementById('champion-name').textContent = w.nome;
+  document.getElementById('champion-votes').textContent = `${w.total} Pamelacci${w.total===1?'a':'e'} in ${revealData.dailyWinners.length} giorni`;
 
-  if (VIDEO_URL) {
-    document.getElementById('video-section').style.display = 'block';
-    document.getElementById('video-iframe').src = VIDEO_URL;
-  }
+  if (VIDEO_URL) { document.getElementById('video-section').style.display = 'block'; document.getElementById('video-iframe').src = VIDEO_URL; }
 
-  const list = document.getElementById('full-ranking-list');
-  list.innerHTML = '';
-  ranking.forEach((user, i) => {
-    const row = document.createElement('div');
-    row.className = 'rank-row';
-    row.innerHTML = `<div class="rank-pos">${i + 1}.</div><div class="rank-emoji">${user.emoji}</div><div class="rank-name">${user.nome}</div><div class="rank-total">${user.total}</div>`;
-    list.appendChild(row);
+  const list = document.getElementById('full-ranking-list'); list.innerHTML = '';
+  ranking.forEach((u, i) => {
+    const r = document.createElement('div'); r.className = 'rank-row';
+    r.innerHTML = `<div class="rank-pos">${i+1}.</div><img class="rank-avatar" src="${avatarUrl(u.id)}" alt="${u.nome}"><div class="rank-name">${u.nome}</div><div class="rank-total">${u.total}</div>`;
+    list.appendChild(r);
   });
 }
 
+function startShameCountdown(winner) {
+  const t = document.getElementById('shame-timer'); let s = 10;
+  new Image().src = `img/${winner.id}.jpg`; // preload
+  const iv = setInterval(() => {
+    s--; t.textContent = s;
+    if (s <= 3 && navigator.vibrate) navigator.vibrate(50);
+    if (s <= 0) { clearInterval(iv); showShameScreen(winner); }
+  }, 1000);
+}
+
+function showShameScreen(winner) {
+  document.getElementById('shame-image').src = avatarUrl(winner.id);
+  document.getElementById('shame-name').textContent = winner.nome;
+  document.getElementById('shame-sub').textContent = `${winner.total} Pamelacci${winner.total===1?'a':'e'} — Giappone 2026`;
+  document.getElementById('shame-screen').classList.add('active');
+  if (navigator.vibrate) navigator.vibrate([200,100,200,100,400]);
+  launchConfetti();
+}
+document.getElementById('shame-close').addEventListener('click', () => { document.getElementById('shame-screen').classList.remove('active'); });
+
 function launchConfetti() {
-  const container = document.getElementById('confetti-container');
-  const colors = ['#ef4444', '#fbbf24', '#f97316', '#ec4899', '#a855f7', '#3b82f6', '#22c55e'];
+  const c = document.getElementById('confetti-container');
+  const cols = ['#ef4444','#fbbf24','#f97316','#ec4899','#a855f7','#3b82f6','#22c55e'];
   for (let i = 0; i < 80; i++) {
-    const c = document.createElement('div');
-    c.className = 'confetti';
-    c.style.left = Math.random() * 100 + '%';
-    c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-    c.style.width = (Math.random() * 8 + 5) + 'px';
-    c.style.height = (Math.random() * 8 + 5) + 'px';
-    c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-    c.style.animationDuration = (Math.random() * 2 + 2) + 's';
-    c.style.animationDelay = (Math.random() * 2) + 's';
-    container.appendChild(c);
+    const d = document.createElement('div'); d.className = 'confetti';
+    d.style.left = Math.random()*100+'%'; d.style.backgroundColor = cols[Math.floor(Math.random()*cols.length)];
+    d.style.width = (Math.random()*8+5)+'px'; d.style.height = (Math.random()*8+5)+'px';
+    d.style.borderRadius = Math.random()>0.5?'50%':'2px';
+    d.style.animationDuration = (Math.random()*2+2)+'s'; d.style.animationDelay = (Math.random()*2)+'s';
+    c.appendChild(d);
   }
-  setTimeout(() => { container.innerHTML = ''; }, 5000);
+  setTimeout(() => { c.innerHTML = ''; }, 5000);
 }
 
-// === SERVICE WORKER & NOTIFICHE ===
-let swRegistration = null;
-async function registerServiceWorker() {
-  if (!('serviceWorker' in navigator)) return null;
-  try { const reg = await navigator.serviceWorker.register('service-worker.js'); swRegistration = reg; return reg; }
-  catch (err) { console.error('SW errore:', err); return null; }
-}
-
+// === NOTIFICHE ===
+let swReg = null;
+async function registerSW() { if (!('serviceWorker' in navigator)) return null; try { const r = await navigator.serviceWorker.register('service-worker.js'); swReg = r; return r; } catch(e) { return null; } }
 function updateNotifUI() {
-  const permission = ('Notification' in window) ? Notification.permission : 'unsupported';
-  const statusEls = [document.getElementById('notif-status'), document.getElementById('notif-status-2')];
-  const cardEls = [document.getElementById('notif-card'), document.getElementById('notif-card-2')];
-  const btnEls = [document.getElementById('btn-enable-notif'), document.getElementById('btn-enable-notif-2')];
-  let statusText = '🔕 Notifiche non attive', statusClass = 'notif-status', cardClass = 'notifications-card', btnText = 'Attiva notifiche giornaliere', btnDisabled = false;
-  if (permission === 'granted') { statusText = '🔔 Notifiche attive'; statusClass = 'notif-status ok'; cardClass = 'notifications-card active'; btnText = 'Invia notifica di test'; }
-  else if (permission === 'denied') { statusText = '🚫 Notifiche bloccate.'; btnDisabled = true; }
-  else if (permission === 'unsupported') { statusText = '⚠️ Browser non supporta notifiche'; btnDisabled = true; }
-  statusEls.forEach(el => { if (el) { el.textContent = statusText; el.className = statusClass; }});
-  cardEls.forEach(el => { if (el) el.className = cardClass; });
-  btnEls.forEach(el => { if (el) { el.textContent = btnText; el.disabled = btnDisabled; }});
+  const p = ('Notification' in window) ? Notification.permission : 'unsupported';
+  [['notif-status','notif-card','btn-enable-notif'],['notif-status-2','notif-card-2','btn-enable-notif-2']].forEach(([sId,cId,bId]) => {
+    const s=document.getElementById(sId), c=document.getElementById(cId), b=document.getElementById(bId);
+    if(!s) return;
+    if(p==='granted') { s.textContent='🔔 Notifiche attive'; s.className='notif-status ok'; c.className='notifications-card active'; b.textContent='Invia notifica di test'; }
+    else if(p==='denied') { s.textContent='🚫 Notifiche bloccate.'; b.disabled=true; }
+    else if(p==='unsupported') { s.textContent='⚠️ Non supportate'; b.disabled=true; }
+  });
 }
-
-async function enableOrTestNotifications() {
-  if (!('Notification' in window)) { alert('Su iPhone: installa l\'app in Home prima.'); return; }
-  if (Notification.permission === 'granted') { const reg = swRegistration || await registerServiceWorker(); if (reg?.active) reg.active.postMessage({ type: 'TEST_NOTIFICATION' }); return; }
-  if (Notification.permission === 'denied') { alert('Notifiche bloccate nelle impostazioni.'); return; }
-  const permission = await Notification.requestPermission();
-  updateNotifUI();
-  if (permission === 'granted') { const reg = swRegistration || await registerServiceWorker(); setTimeout(() => { if (reg?.active) reg.active.postMessage({ type: 'TEST_NOTIFICATION' }); }, 500); }
+async function toggleNotif() {
+  if (!('Notification' in window)) { alert('Su iPhone: installa in Home prima.'); return; }
+  if (Notification.permission==='granted') { const r = swReg || await registerSW(); if(r?.active) r.active.postMessage({type:'TEST_NOTIFICATION'}); return; }
+  if (Notification.permission==='denied') { alert('Sbloccale nelle impostazioni.'); return; }
+  const p = await Notification.requestPermission(); updateNotifUI();
+  if (p==='granted') { const r = swReg || await registerSW(); setTimeout(() => { if(r?.active) r.active.postMessage({type:'TEST_NOTIFICATION'}); }, 500); }
 }
-
-['btn-enable-notif', 'btn-enable-notif-2'].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) el.addEventListener('click', enableOrTestNotifications);
-});
-registerServiceWorker().then(updateNotifUI);
+['btn-enable-notif','btn-enable-notif-2'].forEach(id => { const e = document.getElementById(id); if(e) e.addEventListener('click', toggleNotif); });
+registerSW().then(updateNotifUI);
 </script>
 </body>
 </html>
